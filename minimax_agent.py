@@ -40,6 +40,14 @@ class MinimaxAgent(Agent):
         player, red_pos, black_pos, yellow_birds, score, yb_score = state
 
         # *** YOUR CODE GOES HERE ***
+        gain = 0
+        for each_bird in yellow_birds:
+            if problem.distance[each_bird, red_pos] <= problem.distance[each_bird, black_pos]:
+                gain += yb_score * 1/(problem.distance[each_bird, red_pos]+0.001)
+
+        remaining_birds = len(yellow_birds)
+        # bold_move_bonus = 1 / (problem.distance[red_pos, black_pos]+0.001)
+        score = 3.5 * score + 2 * gain - 10 * remaining_birds
 
         return score
 
@@ -50,8 +58,23 @@ class MinimaxAgent(Agent):
             implementing minimax without alpha-beta pruning.
         """
 
-        raise_not_defined()  # Remove this line once you finished your implementation
-        # *** YOUR CODE GOES HERE ***
+        if current_depth == self.depth:
+            return self.evaluation(problem, state), Directions.STOP
+        if problem.terminal_test(state):
+            return problem.utility(state), Directions.STOP
+        
+        v = float('-inf')
+        optimal_solution = dict()
+        for next_state, action, _ in problem.get_successors(state):
+            v = max(v, self.minimize(problem, next_state, current_depth + 1))
+            optimal_solution[action] = v
+
+            if v >= beta:
+                return v, action
+            alpha = max(alpha, v)
+
+        maximizer = max(optimal_solution, key=optimal_solution.get)
+        return optimal_solution[maximizer], maximizer
 
     def minimize(self, problem: AdversarialSearchProblem, state: State,
                  current_depth: int, alpha=float('-inf'), beta=float('inf')) -> float:
@@ -60,8 +83,18 @@ class MinimaxAgent(Agent):
             implementing minimax without alpha-beta pruning.
         """
 
-        raise_not_defined()  # Remove this line once you finished your implementation
-        # *** YOUR CODE GOES HERE ***
+        if current_depth == self.depth:
+            return self.evaluation(problem, state)
+        if problem.terminal_test(state):
+            return problem.utility(state)
+
+        v = float('inf')
+        for next_state, action, _ in problem.get_successors(state):
+            v = min(v, self.maximize(problem, next_state, current_depth + 1)[0])
+            if v <= alpha:
+                return v
+            beta = min(beta, v)
+        return v
 
     def get_action(self, game_state):
         """ This method is called by the system to solicit an action from

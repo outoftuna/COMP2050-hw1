@@ -63,7 +63,7 @@ def bird_counting_heuristic(state: State,
     position, yellow_birds = state
     heuristic_value = 0
 
-    """ *** YOUR CODE HERE *** """
+    heuristic_value = len(yellow_birds)
 
     return heuristic_value
 
@@ -76,7 +76,24 @@ def every_bird_heuristic(state: State,
     position, yellow_birds = state
     heuristic_value = 0
 
-    """ *** YOUR CODE HERE *** """
+    # this heuristic is the distance to the nearest bird
+
+    yellow_birds = list(yellow_birds)
+    current_bird = position
+    distance = problem.distance
+    
+    while len(yellow_birds) > 0:
+        distance_dict = dict()
+        next_bird = None
+        for each_bird in yellow_birds:
+            distance_dict[each_bird] = distance[current_bird, each_bird]
+        
+        for item in distance_dict:
+            if distance_dict[item] == min(distance_dict.values()):
+                next_bird = item
+        heuristic_value += min(distance_dict.values()) 
+        current_bird = next_bird
+        yellow_birds.remove(current_bird)
 
     return heuristic_value
 
